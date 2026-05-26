@@ -45,7 +45,11 @@ const PublicReportCard = ({ report }) => {
   const imageUrl = getReportImage(report);
 
   return (
-    <article className="glass-panel overflow-hidden flex flex-col h-full hover:border-cyber-cyan/40 transition-all duration-300">
+    <Link 
+      to={`/reports/${report.id}`} 
+      state={{ report }}
+      className="glass-panel overflow-hidden flex flex-col h-full hover:border-cyber-cyan/40 hover:shadow-cyber-card transition-all duration-300 group cursor-pointer"
+    >
       <div className="relative h-44 bg-cyber-lightDark border-b border-cyber-border overflow-hidden">
         {imageUrl ? (
           <img
@@ -69,14 +73,14 @@ const PublicReportCard = ({ report }) => {
           <Calendar className="w-3.5 h-3.5" />
           <span>{formatDate(report.created_at)}</span>
         </div>
-        <h3 className="text-base font-bold text-app-text leading-snug line-clamp-2 mb-2">
+        <h3 className="text-base font-bold text-app-text leading-snug line-clamp-2 mb-2 group-hover:text-cyber-cyan transition-colors">
           {report.title}
         </h3>
         <p className="text-xs text-slate-500 leading-relaxed line-clamp-4">
           {report.description}
         </p>
       </div>
-    </article>
+    </Link>
   );
 };
 

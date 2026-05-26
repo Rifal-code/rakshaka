@@ -277,7 +277,7 @@ export const Dashboard = () => {
                   className="glass-panel border-cyber-border relative overflow-hidden flex flex-col h-full group hover:border-cyber-cyan/40 hover:shadow-cyber-card transition-all duration-300"
                 >
                   {/* Image Screen */}
-                  <div className="relative h-48 w-full bg-cyber-lightDark overflow-hidden border-b border-cyber-border">
+                  <Link to={`/reports/${report.id}`} state={{ report }} className="relative h-48 w-full bg-cyber-lightDark overflow-hidden border-b border-cyber-border block">
                     <img 
                       src={firstImage} 
                       alt={report.title} 
@@ -287,7 +287,7 @@ export const Dashboard = () => {
                     <div className="absolute top-4 left-4 z-10">
                       {getCategoryBadge(report.category)}
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Body Content */}
                   <div className="p-6 flex-1 flex flex-col justify-between">
@@ -299,9 +299,11 @@ export const Dashboard = () => {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-base font-semibold text-app-text line-clamp-1 mb-2 group-hover:text-cyber-cyan transition-colors" title={report.title}>
-                        {report.title}
-                      </h3>
+                      <Link to={`/reports/${report.id}`} state={{ report }}>
+                        <h3 className="text-base font-semibold text-app-text line-clamp-1 mb-2 group-hover:text-cyber-cyan transition-colors" title={report.title}>
+                          {report.title}
+                        </h3>
+                      </Link>
 
                       {/* Description */}
                       <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed mb-6 font-sans">
@@ -315,6 +317,14 @@ export const Dashboard = () => {
                         ID: {report.id.substring(0, 8)}...
                       </span>
                       <div className="flex gap-2">
+                        <Link
+                          to={`/reports/${report.id}`}
+                          state={{ report }}
+                          className="p-2 rounded-lg bg-cyber-lightDark border border-cyber-border hover:border-cyber-cyan text-slate-400 hover:text-cyber-cyan transition-all duration-250"
+                          title="Lihat Detail Laporan"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Link>
                         <Link
                           to={`/reports/${report.id}/edit`}
                           className="p-2 rounded-lg bg-cyber-lightDark border border-cyber-border hover:border-cyber-cyan text-slate-400 hover:text-cyber-cyan transition-all duration-250"

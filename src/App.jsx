@@ -4,6 +4,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { ReportForm } from './pages/ReportForm';
+import { ReportDetail } from './pages/ReportDetail';
 import { LinkChecker } from './pages/LinkChecker';
 import { PublicReports } from './pages/PublicReports';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -16,6 +17,7 @@ function App() {
       <Route path="/login" element={<div className="animate-page-entrance"><Login /></div>} />
       <Route path="/register" element={<div className="animate-page-entrance"><Register /></div>} />
       <Route path="/reports" element={<div className="animate-page-entrance"><PublicReports /></div>} />
+      <Route path="/reports/:id" element={<div className="animate-page-entrance"><ReportDetail /></div>} />
 
       {/* Protected User/Admin Routes */}
       <Route 
