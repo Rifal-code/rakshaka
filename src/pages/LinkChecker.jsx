@@ -226,9 +226,9 @@ export const LinkChecker = () => {
           color: 'text-cyber-green',
           bg: 'bg-cyber-green/10',
           border: 'border-cyber-green/30',
-          glow: 'shadow-[0_0_20px_rgba(0,255,102,0.2)]',
+          glow: 'shadow-sm',
           icon: ShieldCheck,
-          accent: '#00FF66'
+          accent: 'var(--success-btn-color)'
         };
       case 'suspicious':
         return {
@@ -236,9 +236,9 @@ export const LinkChecker = () => {
           color: 'text-amber-400',
           bg: 'bg-amber-500/10',
           border: 'border-amber-500/30',
-          glow: 'shadow-[0_0_20px_rgba(245,158,11,0.2)]',
+          glow: 'shadow-sm',
           icon: AlertTriangle,
-          accent: '#F59E0B'
+          accent: 'rgb(var(--warning-rgb))'
         };
       case 'malicious':
         return {
@@ -246,9 +246,9 @@ export const LinkChecker = () => {
           color: 'text-cyber-red',
           bg: 'bg-cyber-red/10',
           border: 'border-cyber-red/30',
-          glow: 'shadow-[0_0_20px_rgba(255,0,85,0.2)]',
+          glow: 'shadow-sm',
           icon: ShieldAlert,
-          accent: '#FF0055'
+          accent: 'var(--danger-btn-color)'
         };
       default:
         return {
@@ -258,7 +258,7 @@ export const LinkChecker = () => {
           border: 'border-slate-500/30',
           glow: 'shadow-none',
           icon: Info,
-          accent: '#94A3B8'
+          accent: 'var(--secondary-text-color)'
         };
     }
   };
@@ -314,7 +314,7 @@ export const LinkChecker = () => {
           />
         </svg>
         <div className="absolute flex flex-col items-center justify-center">
-          <span className="text-3xl font-display font-black tracking-tight text-white leading-none">
+          <span className="text-3xl font-display font-black tracking-tight text-app-text leading-none">
             {score}
           </span>
           <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mt-1">SCORE</span>
@@ -329,10 +329,10 @@ export const LinkChecker = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="h-1.5 w-6 rounded bg-cyber-cyan shadow-[0_0_10px_#00F0FF]"></span>
+            <span className="h-1.5 w-6 rounded bg-cyber-cyan shadow-sm"></span>
             <span className="text-[10px] font-mono text-cyber-cyan uppercase tracking-widest">Link Analyzer Protocol</span>
           </div>
-          <h1 className="text-4xl font-display font-black text-white tracking-tight uppercase">
+          <h1 className="text-4xl font-display font-black text-app-text tracking-tight uppercase">
             Deteksi Link & Domain
           </h1>
           <p className="text-slate-400 text-sm mt-1 max-w-xl">
@@ -343,7 +343,7 @@ export const LinkChecker = () => {
         <div className="flex items-center gap-4 py-2 px-4 rounded-xl bg-cyber-lightDark/40 border border-cyber-border text-xs font-mono">
           <Activity className="w-4 h-4 text-cyber-green animate-pulse" />
           <span className="text-slate-400">Database Status:</span>
-          <span className="text-cyber-green text-neon-green">ACTIVE & SECURED</span>
+          <span className="text-cyber-green">ACTIVE & SECURED</span>
         </div>
       </div>
 
@@ -380,13 +380,13 @@ export const LinkChecker = () => {
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
                     disabled={isScanning}
-                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-slate-100 placeholder-slate-600 transition-all duration-300 font-sans text-sm py-2"
+                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-app-text placeholder-slate-600 transition-all duration-300 font-sans text-sm py-2"
                   />
                   
                   <button
                     type="submit"
                     disabled={isScanning || !urlInput.trim()}
-                    className="px-5 py-2.5 rounded-lg font-display font-black text-xs uppercase tracking-wider bg-cyber-cyan text-cyber-dark hover:bg-cyber-cyan/80 disabled:opacity-30 disabled:hover:bg-cyber-cyan transition-all duration-300 shadow-neon-cyan flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-lg font-display font-black text-xs uppercase tracking-wider bg-cyber-cyan text-cyber-dark hover:bg-cyber-cyan/80 disabled:opacity-30 disabled:hover:bg-cyber-cyan transition-all duration-300 shadow-sm flex items-center gap-1.5"
                   >
                     {isScanning ? (
                       <>
@@ -407,7 +407,7 @@ export const LinkChecker = () => {
 
           {/* CRT Terminal Screen Output */}
           {isScanning && (
-            <div className="glass-panel p-5 border-cyber-cyan/30 bg-black/90 shadow-cyber-card relative overflow-hidden">
+            <div className="glass-panel p-5 border-cyber-cyan/30 bg-cyber-card shadow-cyber-card relative overflow-hidden">
               <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] pointer-events-none z-15"></div>
               
               <div className="flex items-center justify-between border-b border-cyber-border/80 pb-3 mb-4">
@@ -437,12 +437,12 @@ export const LinkChecker = () => {
               </div>
 
               {/* scrolling logs */}
-              <div className="bg-slate-950/90 p-3.5 rounded-lg border border-cyber-border/80 font-mono text-[10px] leading-relaxed max-h-[140px] overflow-y-auto space-y-1.5">
+              <div className="bg-cyber-lightDark/80 p-3.5 rounded-lg border border-cyber-border/80 font-mono text-[10px] leading-relaxed max-h-[140px] overflow-y-auto space-y-1.5">
                 {terminalLogs.map((log, index) => (
                   <div key={index} className={`flex items-start gap-2 ${
                     log.type === 'error' ? 'text-cyber-red' : 
                     log.type === 'warn' ? 'text-amber-400' : 
-                    log.type === 'success' ? 'text-cyber-green text-neon-green' : 
+                    log.type === 'success' ? 'text-cyber-green' : 
                     log.type === 'system' ? 'text-cyber-cyan' : 'text-slate-400'
                   }`}>
                     <span className="text-slate-600">[{log.timestamp}]</span>
@@ -472,7 +472,7 @@ export const LinkChecker = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-6 border-b border-cyber-border/60">
                   <div className="overflow-hidden">
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-0.5">SCAN TARGET</span>
-                    <p className="text-sm font-semibold text-slate-200 truncate flex items-center gap-2">
+                    <p className="text-sm font-semibold text-app-text truncate flex items-center gap-2">
                       <Globe className="w-4 h-4 text-cyber-cyan" />
                       {scanResult.url}
                     </p>
@@ -496,7 +496,7 @@ export const LinkChecker = () => {
                   {/* Verdict & Actions */}
                   <div className="flex-1 space-y-4">
                     <div>
-                      <h4 className="text-base font-bold text-slate-200 flex items-center gap-1.5 mb-1.5">
+                      <h4 className="text-base font-bold text-app-text flex items-center gap-1.5 mb-1.5">
                         {scanResult.score >= 80 ? (
                           <>
                             <CheckCircle2 className="w-4 h-4 text-cyber-green" />
@@ -536,7 +536,7 @@ export const LinkChecker = () => {
                               initialCategory: scanResult.status === 'malicious' ? 'judol' : 'phishing' 
                             } 
                           })}
-                          className="px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider bg-cyber-red text-white hover:bg-cyber-red/80 transition-all duration-300 shadow-neon-red flex items-center gap-1.5"
+                          className="px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider bg-cyber-red text-cyber-dark hover:bg-cyber-red/80 transition-all duration-300 shadow-sm flex items-center gap-1.5"
                         >
                           <ShieldAlert className="w-3.5 h-3.5" />
                           Laporkan Link Ini
@@ -546,7 +546,7 @@ export const LinkChecker = () => {
                         href={scanResult.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider bg-cyber-lightDark border border-cyber-border text-slate-300 hover:text-white hover:border-slate-500 transition-all duration-300 flex items-center gap-1.5"
+                        className="px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider bg-cyber-lightDark border border-cyber-border text-app-text hover:text-app-text hover:border-slate-500 transition-all duration-300 flex items-center gap-1.5"
                       >
                         Kunjungi Link
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -569,7 +569,7 @@ export const LinkChecker = () => {
             <div className="flex items-center justify-between border-b border-cyber-border pb-4 mb-4">
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-cyber-cyan" />
-                <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-widest">
+                <h3 className="text-xs font-mono font-bold text-app-text uppercase tracking-widest">
                   Scan History
                 </h3>
               </div>
@@ -608,7 +608,7 @@ export const LinkChecker = () => {
                       ></div>
                       
                       <div className="overflow-hidden min-w-0 pl-1.5">
-                        <p className="text-xs font-bold text-slate-300 truncate group-hover:text-cyber-cyan transition-colors">
+                        <p className="text-xs font-bold text-app-text truncate group-hover:text-cyber-cyan transition-colors">
                           {item.url.replace(/^https?:\/\//i, '')}
                         </p>
                         <div className="flex items-center gap-2 mt-1 text-[9px] font-mono text-slate-500">

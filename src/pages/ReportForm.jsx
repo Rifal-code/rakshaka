@@ -203,7 +203,7 @@ export const ReportForm = () => {
         >
           <ArrowLeft className="w-4 h-4" /> Kembali ke Dashboard
         </Link>
-        <h1 className="text-3xl font-display font-black text-white mt-4">
+        <h1 className="text-3xl font-display font-black text-app-text mt-4">
           {isEditMode ? 'Edit Laporan Kasus' : 'Laporkan Kasus Baru'}
         </h1>
         <p className="text-slate-400 text-sm mt-1">
@@ -231,9 +231,9 @@ export const ReportForm = () => {
                 className={`
                   w-10 h-10 rounded-xl flex items-center justify-center font-display font-bold text-sm transition-all duration-300 border
                   ${currentStep > s.num 
-                    ? 'bg-cyber-green border-cyber-green text-cyber-dark shadow-neon-green' 
+                    ? 'bg-cyber-green border-cyber-green text-cyber-dark shadow-sm' 
                     : currentStep === s.num
-                    ? 'bg-cyber-cyan border-cyber-cyan text-cyber-dark shadow-neon-cyan'
+                    ? 'bg-cyber-cyan border-cyber-cyan text-cyber-dark shadow-sm'
                     : 'bg-cyber-card border-cyber-border text-slate-500'
                   }
                 `}
@@ -277,12 +277,12 @@ export const ReportForm = () => {
                     className={`
                       p-4 rounded-xl border text-left flex flex-col justify-between h-32 transition-all duration-300
                       ${category === catOption.id 
-                        ? 'bg-cyber-cyan/10 border-cyber-cyan shadow-neon-cyan/5' 
+                        ? 'bg-cyber-cyan/10 border-cyber-cyan shadow-sm' 
                         : 'bg-cyber-dark/50 border-cyber-border hover:border-slate-700'
                       }
                     `}
                   >
-                    <span className={`text-sm font-bold ${category === catOption.id ? 'text-cyber-cyan' : 'text-slate-300'}`}>
+                    <span className={`text-sm font-bold ${category === catOption.id ? 'text-cyber-cyan' : 'text-app-text'}`}>
                       {catOption.label}
                     </span>
                     <span className="text-[10px] text-slate-500 leading-normal font-sans">
@@ -303,7 +303,7 @@ export const ReportForm = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="cth: Penipuan Investasi Kripto Berkedok Telegram Group"
-                className="w-full px-4 py-3 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-cyan focus:shadow-neon-cyan focus:outline-none text-slate-200 placeholder-slate-600 transition-all duration-350"
+                className="w-full px-4 py-3 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-cyan focus:ring-4 focus:ring-cyber-cyan/10 focus:outline-none text-app-text placeholder-slate-600 transition-all duration-350"
               />
               <span className="text-[10px] text-slate-500 block">
                 Tuliskan ringkasan singkat dari modus penipuan (minimal 3 karakter, maksimal 200 karakter).
@@ -325,7 +325,7 @@ export const ReportForm = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Tuliskan sedetail mungkin kronologi kejadian. Cth: Pelaku mengirimkan link chat berisi penawaran tugas harian berbayar. Ketika korban mengklik link tersebut..."
-                className="w-full px-4 py-3 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-cyan focus:shadow-neon-cyan focus:outline-none text-slate-200 placeholder-slate-600 transition-all duration-350 font-sans resize-none"
+                className="w-full px-4 py-3 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-cyan focus:ring-4 focus:ring-cyber-cyan/10 focus:outline-none text-app-text placeholder-slate-600 transition-all duration-350 font-sans resize-none"
               />
               <span className="text-[10px] text-slate-500 block">
                 Bantu proses investigasi dengan menceritakan modus operandi, kerugian, nomor telepon/rekening pelaku (jika ada). Minimal 10 karakter.
@@ -389,7 +389,7 @@ export const ReportForm = () => {
                 <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">Bukti Terunggah</h4>
                 <div className="grid grid-cols-3 gap-4">
                   {images.map((imgUrl, index) => (
-                    <div key={index} className="relative aspect-video rounded-xl bg-slate-950 overflow-hidden border border-cyber-border group/preview">
+                    <div key={index} className="relative aspect-video rounded-xl bg-cyber-lightDark overflow-hidden border border-cyber-border group/preview">
                       <img 
                         src={imgUrl} 
                         alt={`Bukti ${index + 1}`} 
@@ -421,7 +421,7 @@ export const ReportForm = () => {
                   {category}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white leading-snug">{title}</h3>
+              <h3 className="text-lg font-bold text-app-text leading-snug">{title}</h3>
               
               <div className="border-t border-cyber-border/50 pt-3">
                 <h4 className="text-xs font-mono text-slate-500 uppercase mb-1">Kronologi</h4>
@@ -458,7 +458,7 @@ export const ReportForm = () => {
                 type="button"
                 onClick={handleBack}
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl text-sm font-display font-semibold text-slate-400 hover:text-white hover:bg-cyber-lightDark border border-cyber-border transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl text-sm font-display font-semibold text-slate-400 hover:text-app-text hover:bg-cyber-lightDark border border-cyber-border transition-colors flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Kembali
@@ -471,7 +471,7 @@ export const ReportForm = () => {
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-5 py-2.5 rounded-xl text-sm font-display font-semibold bg-cyber-cyan text-cyber-dark shadow-neon-cyan hover:bg-cyber-cyan/95 transition-all flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl text-sm font-display font-semibold bg-cyber-cyan text-cyber-dark shadow-sm hover:bg-cyber-cyan/95 transition-all flex items-center gap-2"
               >
                 Lanjutkan
                 <ArrowRight className="w-4 h-4" />
@@ -481,7 +481,7 @@ export const ReportForm = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-6 py-2.5 rounded-xl text-sm font-display font-bold bg-cyber-green text-cyber-dark shadow-neon-green hover:bg-cyber-green/95 disabled:opacity-50 transition-all flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl text-sm font-display font-bold bg-cyber-green text-cyber-dark shadow-sm hover:bg-cyber-green/95 disabled:opacity-50 transition-all flex items-center gap-2"
               >
                 {loading ? (
                   <>

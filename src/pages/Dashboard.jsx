@@ -111,7 +111,7 @@ export const Dashboard = () => {
         );
       case 'judol':
         return (
-          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyber-red/10 text-cyber-red border border-cyber-red/20">
             Judol
           </span>
         );
@@ -148,7 +148,7 @@ export const Dashboard = () => {
       {/* Header Info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-display font-black text-white">Dashboard Laporan</h1>
+          <h1 className="text-3xl font-display font-black text-app-text">Dashboard Laporan</h1>
           <p className="text-slate-400 text-sm mt-1">
             {isAdmin 
               ? 'Mode Administrator: Memantau laporan ancaman siber masuk secara global.' 
@@ -157,7 +157,7 @@ export const Dashboard = () => {
         </div>
         <Link
           to="/reports/new"
-          className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-cyber-green text-cyber-dark font-display font-bold text-sm shadow-neon-green hover:bg-cyber-green/90 transition-all duration-300 self-start sm:self-auto"
+          className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-cyber-green text-cyber-dark font-display font-bold text-sm shadow-sm hover:bg-cyber-green/90 transition-all duration-300 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           Buat Laporan Baru
@@ -172,7 +172,7 @@ export const Dashboard = () => {
             <FileText className="w-16 h-16" />
           </div>
           <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Total Laporan</span>
-          <h3 className="text-3xl font-display font-extrabold text-white mt-2">{stats.total}</h3>
+          <h3 className="text-3xl font-display font-extrabold text-app-text mt-2">{stats.total}</h3>
           <p className="text-[10px] text-slate-400 mt-1">Situs terindikasi</p>
         </div>
 
@@ -197,12 +197,12 @@ export const Dashboard = () => {
         </div>
 
         {/* Judol Stats */}
-        <div className="glass-panel p-5 border-purple-500/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-3 text-purple-500 opacity-10">
+        <div className="glass-panel p-5 border-cyber-red/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-3 text-cyber-red opacity-10">
             <ShieldAlert className="w-16 h-16" />
           </div>
           <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Laporan Judol</span>
-          <h3 className="text-3xl font-display font-extrabold text-purple-400 mt-2">{stats.judol}</h3>
+          <h3 className="text-3xl font-display font-extrabold text-cyber-red mt-2">{stats.judol}</h3>
           <p className="text-[10px] text-slate-400 mt-1">Situs judi online slot</p>
         </div>
       </div>
@@ -218,7 +218,7 @@ export const Dashboard = () => {
                 px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200
                 ${categoryFilter === cat 
                   ? 'bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30' 
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-cyber-lightDark border border-transparent'
+                  : 'text-slate-400 hover:text-app-text hover:bg-cyber-lightDark border border-transparent'
                 }
               `}
             >
@@ -247,7 +247,7 @@ export const Dashboard = () => {
           <div className="w-12 h-12 rounded-2xl bg-cyber-border flex items-center justify-center text-slate-600 mb-4">
             <FileText className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-200 mb-1">Belum Ada Laporan</h3>
+          <h3 className="text-lg font-semibold text-app-text mb-1">Belum Ada Laporan</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto mb-6">
             {categoryFilter === 'all' 
               ? 'Anda belum mengirimkan laporan ancaman siber. Laporkan situs penipuan sekarang.' 
@@ -256,7 +256,7 @@ export const Dashboard = () => {
           {categoryFilter === 'all' && (
             <Link
               to="/reports/new"
-              className="px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark font-display font-bold text-xs shadow-neon-cyan hover:bg-cyber-cyan/95 transition-all"
+              className="px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark font-display font-bold text-xs shadow-sm hover:bg-cyber-cyan/95 transition-all"
             >
               Mulai Melapor
             </Link>
@@ -277,7 +277,7 @@ export const Dashboard = () => {
                   className="glass-panel border-cyber-border relative overflow-hidden flex flex-col h-full group hover:border-cyber-cyan/40 hover:shadow-cyber-card transition-all duration-300"
                 >
                   {/* Image Screen */}
-                  <div className="relative h-48 w-full bg-slate-950 overflow-hidden border-b border-cyber-border">
+                  <div className="relative h-48 w-full bg-cyber-lightDark overflow-hidden border-b border-cyber-border">
                     <img 
                       src={firstImage} 
                       alt={report.title} 
@@ -299,7 +299,7 @@ export const Dashboard = () => {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-base font-semibold text-slate-200 line-clamp-1 mb-2 group-hover:text-cyber-cyan transition-colors" title={report.title}>
+                      <h3 className="text-base font-semibold text-app-text line-clamp-1 mb-2 group-hover:text-cyber-cyan transition-colors" title={report.title}>
                         {report.title}
                       </h3>
 
@@ -343,7 +343,7 @@ export const Dashboard = () => {
               <button
                 onClick={() => setPage(prev => Math.max(prev - 1, 1))}
                 disabled={page === 1}
-                className="p-2.5 rounded-xl border border-cyber-border bg-cyber-card text-slate-400 hover:text-white disabled:opacity-40 transition-colors"
+                className="p-2.5 rounded-xl border border-cyber-border bg-cyber-card text-slate-400 hover:text-app-text disabled:opacity-40 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -353,7 +353,7 @@ export const Dashboard = () => {
               <button
                 onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={page === totalPages}
-                className="p-2.5 rounded-xl border border-cyber-border bg-cyber-card text-slate-400 hover:text-white disabled:opacity-40 transition-colors"
+                className="p-2.5 rounded-xl border border-cyber-border bg-cyber-card text-slate-400 hover:text-app-text disabled:opacity-40 transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>

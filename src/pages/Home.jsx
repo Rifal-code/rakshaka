@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { 
-  Shield, 
   ShieldCheck, 
   ShieldAlert, 
   AlertTriangle, 
   Search, 
   ChevronRight, 
   FileText, 
-  TrendingUp,
-  Cpu
+  Cpu,
+  Loader
 } from 'lucide-react';
+import { PublicReportCard } from './PublicReports';
 
 export const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -22,6 +22,35 @@ export const Home = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [error, setError] = useState(null);
+  const [latestReports, setLatestReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchLatestReports = async () => {
+      setReportsLoading(true);
+      setReportsError('');
+      try {
+        const response = await api.getPublicReports(1, 3);
+        if (!isMounted) return;
+        setLatestReports(response.data?.data || []);
+      } catch {
+        if (!isMounted) return;
+        setLatestReports([]);
+        setReportsError('Laporan publik belum tersedia.');
+      } finally {
+        if (isMounted) setReportsLoading(false);
+      }
+    };
+
+    fetchLatestReports();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleScan = async (e) => {
     e.preventDefault();
@@ -70,7 +99,7 @@ export const Home = () => {
         })();
       }
 
-      const [_, response] = await Promise.all([scanPromise, apiPromise]);
+      const [, response] = await Promise.all([scanPromise, apiPromise]);
 
       if (response.success && response.data) {
         setScanResult(response.data);
@@ -89,7 +118,7 @@ export const Home = () => {
     switch (status) {
       case 'safe':
         return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-green/10 text-cyber-green border border-cyber-green/30 text-neon-green">
+          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-green/10 text-cyber-green border border-cyber-green/30">
             <ShieldCheck className="w-3.5 h-3.5" /> AMAN
           </span>
         );
@@ -101,7 +130,7 @@ export const Home = () => {
         );
       case 'malicious':
         return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-red/10 text-cyber-red border border-cyber-red/30 text-neon-red">
+          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-red/10 text-cyber-red border border-cyber-red/30">
             <ShieldAlert className="w-3.5 h-3.5" /> BERBAHAYA
           </span>
         );
@@ -115,17 +144,15 @@ export const Home = () => {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-cyber-green text-neon-green';
+    if (score >= 80) return 'text-cyber-green';
     if (score >= 50) return 'text-amber-400';
-    return 'text-cyber-red text-neon-red';
+    return 'text-cyber-red';
   };
 
   return (
     <div className="min-h-screen flex flex-col relative bg-cyber-dark overflow-hidden">
       {/* Background patterns */}
-      <div className="absolute top-0 inset-x-0 h-[600px] cyber-grid pointer-events-none opacity-60"></div>
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-cyber-cyan/5 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyber-green/5 blur-[120px] pointer-events-none"></div>
+      <div className="absolute inset-0 dotted-grid pointer-events-none opacity-55"></div>
 
       <Navbar />
 
@@ -133,16 +160,16 @@ export const Home = () => {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 z-10 flex flex-col items-center justify-center">
         
         {/* Anti-Fraud Banner Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono mb-8 animate-float shadow-neon-cyan/5">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono mb-8 animate-float shadow-sm">
           <Cpu className="w-4 h-4 animate-spin" style={{ animationDuration: '6s' }} />
           <span>PROYEK PERLINDUNGAN SIBER NASIONAL</span>
         </div>
 
         {/* Hero Texts */}
         <div className="text-center max-w-3xl mb-12">
-          <h1 className="text-4xl sm:text-6xl font-display font-black tracking-tight text-white mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-6xl font-display font-black tracking-tight text-app-text mb-6 leading-tight">
             Lindungi Diri Anda dari <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-cyber-cyan via-cyber-green to-cyber-cyan bg-clip-text text-transparent">
+            <span className="text-cyber-cyan">
               Kejahatan Digital
             </span>
           </h1>
@@ -167,13 +194,13 @@ export const Home = () => {
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   disabled={isScanning}
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-cyan focus:shadow-neon-cyan focus:outline-none text-slate-100 placeholder-slate-500 transition-all duration-300 font-sans"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-cyan focus:ring-4 focus:ring-cyber-cyan/10 focus:outline-none text-app-text placeholder-slate-500 transition-all duration-300 font-sans"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isScanning || !urlInput.trim()}
-                className="px-6 py-3.5 rounded-xl font-display font-bold text-sm bg-cyber-cyan text-cyber-dark hover:bg-cyber-cyan/90 disabled:opacity-50 transition-all duration-300 shadow-neon-cyan flex items-center justify-center gap-2"
+                className="px-6 py-3.5 rounded-xl font-display font-bold text-sm bg-cyber-cyan text-cyber-dark hover:bg-cyber-cyan/90 disabled:opacity-50 transition-all duration-300 shadow-sm flex items-center justify-center gap-2"
               >
                 {isScanning ? (
                   <>
@@ -202,7 +229,7 @@ export const Home = () => {
               <div className="w-16 h-16 rounded-full border-2 border-cyber-cyan border-dashed flex items-center justify-center mb-4 relative">
                 <Search className="w-6 h-6 text-cyber-cyan" />
               </div>
-              <p className="text-sm font-mono text-cyber-cyan tracking-widest text-neon-cyan uppercase">
+              <p className="text-sm font-mono text-cyber-cyan tracking-widest uppercase">
                 Memindai Ancaman Siber...
               </p>
               <p className="text-xs text-slate-500 mt-1 font-mono">
@@ -217,7 +244,7 @@ export const Home = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-cyber-border/50">
                 <div className="overflow-hidden">
                   <h4 className="text-xs font-mono text-slate-500 uppercase mb-1">Domain Target</h4>
-                  <p className="text-sm font-medium text-slate-200 truncate">{scanResult.url}</p>
+                  <p className="text-sm font-medium text-app-text truncate">{scanResult.url}</p>
                 </div>
                 <div>
                   <h4 className="text-xs font-mono text-slate-500 uppercase mb-1 sm:text-right">Tingkat Keamanan</h4>
@@ -242,7 +269,13 @@ export const Home = () => {
                         cy="40"
                         r="32"
                         className="fill-none transition-all duration-1000 ease-out"
-                        stroke={scanResult.status === 'safe' ? '#00FF66' : scanResult.status === 'malicious' ? '#FF0055' : '#F59E0B'}
+                        stroke={
+                          scanResult.status === 'safe'
+                            ? 'var(--success-btn-color)'
+                            : scanResult.status === 'malicious'
+                              ? 'var(--danger-btn-color)'
+                              : 'rgb(var(--warning-rgb))'
+                        }
                         strokeWidth="4.5"
                         strokeDasharray={2 * Math.PI * 32}
                         strokeDashoffset={2 * Math.PI * 32 - (scanResult.score / 100) * (2 * Math.PI * 32)}
@@ -257,7 +290,7 @@ export const Home = () => {
                     </div>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-200 mb-1">
+                    <h5 className="text-sm font-semibold text-app-text mb-1">
                       {scanResult.score >= 80 ? 'Situs Tampak Aman' : scanResult.score >= 50 ? 'Gunakan dengan Hati-hati' : 'Situs Berbahaya Terdeteksi!'}
                     </h5>
                     <p className="text-xs text-slate-400 font-sans leading-relaxed">
@@ -272,12 +305,12 @@ export const Home = () => {
 
                 {!isAuthenticated && (
                   <div className="p-4 rounded-xl bg-cyber-cyan/5 border border-cyber-cyan/20 flex flex-col items-center text-center">
-                    <p className="text-xs text-slate-300 font-medium mb-3">
+                    <p className="text-xs text-app-text font-medium mb-3">
                       Butuh keamanan ekstra? Laporkan link ini ke platform untuk ditindaklanjuti.
                     </p>
                     <Link
                       to="/login"
-                      className="px-4 py-1.5 rounded-lg bg-cyber-cyan text-cyber-dark font-display font-semibold text-xs shadow-neon-cyan hover:bg-cyber-cyan/90 transition-all"
+                      className="px-4 py-1.5 rounded-lg bg-cyber-cyan text-cyber-dark font-display font-semibold text-xs shadow-sm hover:bg-cyber-cyan/90 transition-all"
                     >
                       Kirim Laporan Kasus
                     </Link>
@@ -302,7 +335,7 @@ export const Home = () => {
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <ShieldAlert className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-200">Laporkan Scam Online</h3>
+            <h3 className="text-lg font-semibold text-app-text">Laporkan Scam Online</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Kirim kronologi dan bukti tangkapan layar penipuan online (seperti investasi palsu atau toko online fiktif) untuk diverifikasi oleh admin.
             </p>
@@ -312,7 +345,7 @@ export const Home = () => {
             <div className="w-10 h-10 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan">
               <Search className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-200">Detektor Phishing</h3>
+            <h3 className="text-lg font-semibold text-app-text">Detektor Phishing</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Cek keabsahan domain perbankan atau media sosial palsu secara cepat menggunakan sistem pendeteksi link terintegrasi.
             </p>
@@ -322,11 +355,58 @@ export const Home = () => {
             <div className="w-10 h-10 rounded-xl bg-cyber-red/10 border border-cyber-red/30 flex items-center justify-center text-cyber-red">
               <AlertTriangle className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-200">Berantas Judi Online</h3>
+            <h3 className="text-lg font-semibold text-app-text">Berantas Judi Online</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Kirim laporan domain situs perjudian online ilegal yang menyasar masyarakat Indonesia agar segera masuk daftar cekal instansi.
             </p>
           </div>
+        </section>
+
+        {/* Latest Public Reports */}
+        <section className="w-full max-w-6xl mt-16">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/20 text-cyber-cyan text-xs font-mono mb-3">
+                <FileText className="w-4 h-4" />
+                Laporan Komunitas
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-display font-black text-app-text">
+                Laporan Terbaru
+              </h2>
+              <p className="text-sm text-slate-500 mt-1 max-w-xl">
+                Data laporan terbaru dari masyarakat untuk membantu semua orang mengenali pola ancaman digital.
+              </p>
+            </div>
+            <Link
+              to="/reports"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cyber-cyan text-cyber-dark text-sm font-display font-bold shadow-sm hover:bg-cyber-cyan/90 transition-all"
+            >
+              Lihat Semua Laporan
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {reportsLoading ? (
+            <div className="glass-panel h-48 flex flex-col items-center justify-center">
+              <Loader className="w-7 h-7 text-cyber-cyan animate-spin mb-3" />
+              <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">Memuat laporan terbaru...</p>
+            </div>
+          ) : latestReports.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {latestReports.map((report) => (
+                <PublicReportCard key={report.id} report={report} />
+              ))}
+            </div>
+          ) : (
+            <div className="glass-panel border-dashed p-8 text-center">
+              <h3 className="text-lg font-bold text-app-text">
+                Belum Ada Laporan Publik
+              </h3>
+              <p className="text-sm text-slate-500 max-w-lg mx-auto mt-2">
+                {reportsError || 'Laporan terbaru akan tampil di sini setelah API publik menyediakan data.'}
+              </p>
+            </div>
+          )}
         </section>
 
       </main>
