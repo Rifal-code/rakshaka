@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import { DashboardLayout } from '../components/DashboardLayout';
 import { 
   FileText, 
@@ -21,6 +23,8 @@ import {
 export const Dashboard = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+  const confirm = useConfirm();
   
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,17 +85,24 @@ export const Dashboard = () => {
   }, [page]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus laporan ini secara permanen?')) return;
+    const isConfirmed = await confirm({
+      title: 'Hapus Laporan',
+      message: 'Apakah Anda yakin ingin menghapus laporan ini secara permanen? Data yang dihapus tidak dapat dikembalikan.',
+      isDestructive: true
+    });
+    
+    if (!isConfirmed) return;
 
     try {
       const res = await api.deleteReport(id);
       if (res.success) {
+        toast.success('Laporan berhasil dihapus');
         // Refresh feed
         fetchReports();
       }
     } catch (err) {
       console.error(err);
-      alert('Gagal menghapus laporan: ' + err.message);
+      toast.error('Gagal menghapus laporan: ' + err.message);
     }
   };
 

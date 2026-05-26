@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { DashboardLayout } from '../components/DashboardLayout';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import { 
   Search, 
   ShieldCheck, 
@@ -24,6 +26,8 @@ import {
 
 export const LinkChecker = () => {
   const navigate = useNavigate();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [urlInput, setUrlInput] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
@@ -64,8 +68,8 @@ export const LinkChecker = () => {
     const newHistoryItem = {
       id: Date.now().toString(),
       url: result.url,
-      status: result.status,
-      score: result.score,
+      status: result.status || 'unknown',
+      score: (typeof result.score === 'number') ? result.score : 0,
       timestamp: new Date().toISOString()
     };
     
@@ -125,8 +129,21 @@ export const LinkChecker = () => {
       const apiPromise = api.checkLink(processedUrl);
       const [_, response] = await Promise.all([scanPromise, apiPromise]);
 
+      console.log('API Raw Response:', JSON.stringify(response, null, 2));
+
       if (response.success && response.data) {
-        const result = response.data;
+        const raw = response.data;
+        console.log('Parsed result:', raw);
+        console.log('Status:', raw.status, '| Score:', raw.score, '| Reason:', raw.reason);
+        
+        // Normalisasi data agar UI tidak rusak jika ada field yang kosong/null
+        const result = {
+          ...raw,
+          score: (typeof raw.score === 'number') ? raw.score : 0,
+          status: raw.status || 'unknown',
+          reason: raw.reason || null,
+        };
+        
         setScanResult(result);
         saveToHistory(result);
         
@@ -136,7 +153,7 @@ export const LinkChecker = () => {
             timestamp: new Date().toLocaleTimeString(),
             code: 'ANALYSIS_COMPLETE',
             text: `Verdict: ${result.status.toUpperCase()} | Score: ${result.score}/100`,
-            type: result.status === 'safe' ? 'success' : result.status === 'malicious' ? 'error' : 'warn'
+            type: result.status === 'safe' ? 'success' : (result.status === 'malicious' || result.status === 'judol') ? 'error' : 'warn'
           }
         ]);
       } else {
@@ -211,10 +228,17 @@ export const LinkChecker = () => {
     ]);
   };
 
-  const clearHistory = () => {
-    if (window.confirm('Hapus semua riwayat deteksi?')) {
+  const handleClearHistory = async () => {
+    const isConfirmed = await confirm({
+      title: 'Hapus Riwayat',
+      message: 'Apakah Anda yakin ingin menghapus semua riwayat deteksi? Tindakan ini tidak dapat dibatalkan.',
+      isDestructive: true
+    });
+    
+    if (isConfirmed) {
       setScanHistory([]);
       localStorage.removeItem('rakshaka_scan_history');
+      toast.success('Riwayat berhasil dihapus');
     }
   };
 
@@ -250,6 +274,16 @@ export const LinkChecker = () => {
           icon: ShieldAlert,
           accent: 'var(--danger-btn-color)'
         };
+      case 'judol':
+        return {
+          label: 'JUDI ONLINE / JUDOL',
+          color: 'text-cyber-red',
+          bg: 'bg-cyber-red/10',
+          border: 'border-cyber-red/30',
+          glow: 'shadow-sm',
+          icon: ShieldAlert,
+          accent: 'var(--danger-btn-color)'
+        };
       default:
         return {
           label: 'TIDAK DIKENAL / UNKNOWN',
@@ -278,7 +312,8 @@ export const LinkChecker = () => {
   };
 
   // SVG Gauge calculations
-  const renderGauge = (score, accentColor) => {
+  const renderGauge = (rawScore, accentColor) => {
+    const score = (typeof rawScore === 'number') ? rawScore : 0;
     const radius = 40;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (score / 100) * circumference;
@@ -497,30 +532,37 @@ export const LinkChecker = () => {
                   <div className="flex-1 space-y-4">
                     <div>
                       <h4 className="text-base font-bold text-app-text flex items-center gap-1.5 mb-1.5">
-                        {scanResult.score >= 80 ? (
+                        {scanResult.status === 'safe' ? (
                           <>
                             <CheckCircle2 className="w-4 h-4 text-cyber-green" />
                             Situs ini Tergolong Aman
                           </>
-                        ) : scanResult.score >= 50 ? (
+                        ) : scanResult.status === 'suspicious' ? (
                           <>
                             <AlertTriangle className="w-4 h-4 text-amber-400" />
                             Situs Kurang Terpercaya
                           </>
-                        ) : (
+                        ) : scanResult.status === 'malicious' || scanResult.status === 'judol' ? (
                           <>
                             <XCircle className="w-4 h-4 text-cyber-red" />
-                            Ancaman Keamanan Siber Terdeteksi!
+                            {scanResult.status === 'judol' ? 'Situs Judi Online Terdeteksi!' : 'Ancaman Keamanan Siber Terdeteksi!'}
+                          </>
+                        ) : (
+                          <>
+                            <Info className="w-4 h-4 text-slate-400" />
+                            Status Tidak Diketahui
                           </>
                         )}
                       </h4>
                       <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                        {scanResult.score >= 80 ? (
-                          'Tidak ada ancaman aktif atau riwayat berbahaya yang terdeteksi di database kami. Situs ini dapat digunakan secara normal.'
-                        ) : scanResult.score >= 50 ? (
-                          'Situs memiliki indikator mencurigakan seperti pembuat domain baru atau sertifikat HTTPS yang meragukan. Harap berhati-hati saat bertransaksi.'
-                        ) : (
-                          'Situs dikonfirmasi memuat aktivitas ilegal seperti penipuan keuangan, judi slot ilegal, atau form phishing. Tutup tab Anda segera.'
+                        {scanResult.reason || (
+                          scanResult.status === 'safe'
+                            ? 'Tidak ada ancaman aktif atau riwayat berbahaya yang terdeteksi di database kami. Situs ini dapat digunakan secara normal.'
+                            : scanResult.status === 'suspicious'
+                            ? 'Situs memiliki indikator mencurigakan. Harap berhati-hati saat bertransaksi.'
+                            : scanResult.status === 'malicious' || scanResult.status === 'judol'
+                            ? 'Situs dikonfirmasi memuat aktivitas ilegal. Tutup tab Anda segera.'
+                            : 'Tidak dapat menentukan status keamanan situs ini.'
                         )}
                       </p>
                     </div>
@@ -575,7 +617,7 @@ export const LinkChecker = () => {
               </div>
               {scanHistory.length > 0 && (
                 <button
-                  onClick={clearHistory}
+                  onClick={handleClearHistory}
                   className="p-1 rounded bg-cyber-lightDark/50 border border-cyber-border hover:border-cyber-red/50 hover:text-cyber-red text-slate-500 transition-all duration-200"
                   title="Hapus Semua Riwayat"
                 >

@@ -139,6 +139,12 @@ export const Home = () => {
             <ShieldAlert className="w-3.5 h-3.5" /> BERBAHAYA
           </span>
         );
+      case 'judol':
+        return (
+          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-red/10 text-cyber-red border border-cyber-red/30">
+            <ShieldAlert className="w-3.5 h-3.5" /> JUDI ONLINE
+          </span>
+        );
       default:
         return (
           <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/30">
@@ -148,9 +154,13 @@ export const Home = () => {
     }
   };
 
-  const getScoreColor = (score) => {
-    if (score >= 80) return 'text-cyber-green';
-    if (score >= 50) return 'text-amber-400';
+  const getScoreColor = (status, score) => {
+    if (status === 'safe') return 'text-cyber-green';
+    if (status === 'suspicious') return 'text-amber-400';
+    if (status === 'malicious' || status === 'judol') return 'text-cyber-red';
+    // fallback by score
+    if (score <= 20) return 'text-cyber-green';
+    if (score <= 60) return 'text-amber-400';
     return 'text-cyber-red';
   };
 
@@ -288,7 +298,7 @@ export const Home = () => {
                       />
                     </svg>
                     <div className="absolute flex flex-col items-center justify-center">
-                      <span className={`text-xl font-display font-black ${getScoreColor(scanResult.score)}`}>
+                      <span className={`text-xl font-display font-black ${getScoreColor(scanResult.status, scanResult.score)}`}>
                         {scanResult.score}
                       </span>
                       <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">SCORE</span>
@@ -296,14 +306,22 @@ export const Home = () => {
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-app-text mb-1">
-                      {scanResult.score >= 80 ? 'Situs Tampak Aman' : scanResult.score >= 50 ? 'Gunakan dengan Hati-hati' : 'Situs Berbahaya Terdeteksi!'}
+                      {scanResult.status === 'safe' ? 'Situs Tampak Aman' 
+                        : scanResult.status === 'suspicious' ? 'Gunakan dengan Hati-hati' 
+                        : scanResult.status === 'judol' ? 'Situs Judi Online Terdeteksi!'
+                        : scanResult.status === 'malicious' ? 'Situs Berbahaya Terdeteksi!'
+                        : 'Status Tidak Diketahui'}
                     </h5>
                     <p className="text-xs text-slate-400 font-sans leading-relaxed">
-                      {scanResult.score >= 80 
-                        ? 'Website tidak terdaftar di database blacklist dan aman untuk diakses.' 
-                        : scanResult.score >= 50 
-                        ? 'Memiliki beberapa indikator mencurigakan (misalnya domain baru terdaftar).' 
-                        : 'Situs ini dikonfirmasi melakukan aktivitas ilegal (phishing/gambling).'}
+                      {scanResult.reason || (
+                        scanResult.status === 'safe'
+                          ? 'Website tidak terdaftar di database blacklist dan aman untuk diakses.'
+                          : scanResult.status === 'suspicious'
+                          ? 'Memiliki beberapa indikator mencurigakan (misalnya domain baru terdaftar).'
+                          : scanResult.status === 'malicious' || scanResult.status === 'judol'
+                          ? 'Situs ini dikonfirmasi melakukan aktivitas ilegal (phishing/gambling).'
+                          : 'Tidak dapat menentukan status keamanan situs ini.'
+                      )}
                     </p>
                   </div>
                 </div>
