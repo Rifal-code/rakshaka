@@ -1,103 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Shield, User, Mail, Key, AlertTriangle, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {
+  Shield,
+  User,
+  Mail,
+  Key,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+} from "lucide-react";
 
 export const Register = () => {
   const { register, login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username || !email || !password) {
-      setError('Harap lengkapi semua kolom.');
+      setError("Harap lengkapi semua kolom.");
       return;
     }
 
     if (username.length < 3 || username.length > 50) {
-      setError('Username harus di antara 3 hingga 50 karakter.');
+      setError("Username harus di antara 3 hingga 50 karakter.");
       return;
     }
 
     if (password.length < 8) {
-      setError('Password minimal harus 8 karakter.');
+      setError("Password minimal harus 8 karakter.");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
     setSuccess(false);
 
     try {
       // 1. Call Register API
       const registerRes = await register(username, email, password);
-      
+
       if (registerRes.success) {
         setSuccess(true);
         // 2. UX shortcut: Auto login after successful registration!
         await login(email, password);
-        navigate('/dashboard');
+        navigate("/dashboard");
       } else {
         throw new Error(registerRes.message || "Registrasi gagal");
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Gagal melakukan pendaftaran. Silakan coba kembali atau gunakan email/username lain.');
+      setError(
+        err.message ||
+          "Gagal melakukan pendaftaran. Silakan coba kembali atau gunakan email/username lain.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-cyber-dark flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden cyber-grid">
-      {/* Background decoration */}
-      <div className="absolute top-[20%] left-[-15%] w-[40%] h-[40%] rounded-full bg-cyber-cyan/5 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[20%] right-[-15%] w-[40%] h-[40%] rounded-full bg-cyber-green/5 blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen bg-cyber-dark flex flex-col justify-center py-10 sm:px-6 lg:px-8 relative overflow-hidden cyber-grid">
+      {/* Background patterns */}
+      <div className="absolute inset-0 dotted-grid pointer-events-none opacity-55"></div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10 px-4">
         {/* Back to Home Link */}
         <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-2 group text-slate-500 hover:text-cyber-green transition-colors text-xs font-mono tracking-widest uppercase">
-            <Shield className="w-4 h-4 text-slate-500 group-hover:text-cyber-green transition-colors" />
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 group text-slate-500 hover:text-cyber-cyan transition-colors text-xs font-mono tracking-widest uppercase"
+          >
+            <Shield className="w-4 h-4 text-slate-500 group-hover:text-cyber-cyan transition-colors" />
             Kembali ke Beranda
           </Link>
         </div>
 
         {/* Register Card Container */}
-        <div className="glass-panel p-8 sm:p-10 border-cyber-green/10 shadow-cyber-card relative">
+        <div className="glass-panel p-8 sm:p-10 border-cyber-border relative">
           {/* Top colored indicator bar */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyber-green to-cyber-green/50 rounded-t-2xl"></div>
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-cyber-cyan rounded-t-2xl"></div>
 
           {/* Heading */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-wide">
-              REGISTRASI PROTEKTOR
+            <div className="mx-auto mb-4 w-12 h-12 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/20 flex items-center justify-center text-cyber-cyan">
+              <Shield className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-app-text tracking-wide">
+              Buat Akun Rakshaka
             </h2>
-            <p className="mt-2 text-xs font-mono text-slate-500 uppercase tracking-widest">
+            <p className="mt-2 text-sm text-slate-500">
               Daftarkan diri Anda untuk melapor
             </p>
           </div>
 
           {/* Success Banner */}
           {success && (
-            <div className="border border-cyber-green/30 rounded-xl bg-cyber-green/5 p-4 flex items-center gap-3 text-cyber-green mb-6 animate-pulse">
+            <div className="border border-cyber-green/30 rounded-xl bg-cyber-green/5 p-4 flex items-center gap-3 text-cyber-green mb-6">
               <ShieldCheck className="w-5 h-5 flex-shrink-0" />
-              <p className="text-xs font-medium">Registrasi Berhasil! Mengalihkan ke Dashboard...</p>
+              <p className="text-xs font-medium">
+                Registrasi Berhasil! Mengalihkan ke Dashboard...
+              </p>
             </div>
           )}
 
@@ -106,7 +125,10 @@ export const Register = () => {
             <form className="space-y-5" onSubmit={handleSubmit}>
               {/* Username Field */}
               <div className="space-y-1.5">
-                <label htmlFor="username" className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-400">
+                <label
+                  htmlFor="username"
+                  className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-500"
+                >
                   Username Akun
                 </label>
                 <div className="relative">
@@ -119,14 +141,17 @@ export const Register = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     disabled={loading}
-                    className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-green focus:shadow-neon-green focus:outline-none text-slate-200 placeholder-slate-650 transition-all duration-300 font-sans"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-cyber-card border border-cyber-border focus:border-cyber-cyan focus:ring-4 focus:ring-cyber-cyan/10 focus:outline-none text-app-text placeholder-slate-400 transition-all duration-300 font-sans"
                   />
                 </div>
               </div>
 
               {/* Email Field */}
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-400">
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-500"
+                >
                   Email Akun
                 </label>
                 <div className="relative">
@@ -139,35 +164,42 @@ export const Register = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
-                    className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-green focus:shadow-neon-green focus:outline-none text-slate-200 placeholder-slate-650 transition-all duration-300 font-sans"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-cyber-card border border-cyber-border focus:border-cyber-cyan focus:ring-4 focus:ring-cyber-cyan/10 focus:outline-none text-app-text placeholder-slate-400 transition-all duration-300 font-sans"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div className="space-y-1.5">
-                <label htmlFor="password" className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-400">
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-500"
+                >
                   Password Baru (Min. 8 Karakter)
                 </label>
                 <div className="relative">
                   <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                   <input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     required
-                    placeholder="••••••••"
+                    placeholder="Minimal 8 karakter"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
-                    className="w-full pl-12 pr-12 py-2.5 rounded-xl bg-cyber-dark border border-cyber-border focus:border-cyber-green focus:shadow-neon-green focus:outline-none text-slate-200 placeholder-slate-650 transition-all duration-300 font-sans"
+                    className="w-full pl-12 pr-12 py-3 rounded-xl bg-cyber-card border border-cyber-border focus:border-cyber-cyan focus:ring-4 focus:ring-cyber-cyan/10 focus:outline-none text-app-text placeholder-slate-400 transition-all duration-300 font-sans"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-cyber-cyan"
                     tabIndex="-1"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -185,15 +217,15 @@ export const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 px-4 rounded-xl text-sm font-display font-bold bg-cyber-green text-cyber-dark shadow-neon-green hover:bg-cyber-green/90 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-4 rounded-xl text-sm font-display font-bold bg-cyber-cyan text-cyber-dark shadow-sm hover:bg-cyber-cyan/90 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
                       <span className="w-4 h-4 border-2 border-cyber-dark border-t-transparent rounded-full animate-spin"></span>
-                      Mendaftarkan Enkripsi...
+                      Mendaftarkan Akun...
                     </>
                   ) : (
-                    'Daftar Akun Baru'
+                    "Daftar Akun Baru"
                   )}
                 </button>
               </div>
@@ -203,8 +235,11 @@ export const Register = () => {
           {/* Card Footer Link */}
           <div className="mt-8 pt-6 border-t border-cyber-border text-center">
             <p className="text-sm text-slate-400">
-              Sudah punya akun?{' '}
-              <Link to="/login" className="font-semibold text-cyber-green hover:underline hover:text-neon-green transition-colors">
+              Sudah punya akun?{" "}
+              <Link
+                to="/login"
+                className="font-semibold text-cyber-cyan hover:underline transition-colors"
+              >
                 Masuk Sekarang
               </Link>
             </p>
