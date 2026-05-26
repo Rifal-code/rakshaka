@@ -145,8 +145,12 @@
 }
 
 .dotted-grid {
-  background-size: 26px 26px;
-  background-image: radial-gradient(circle, rgb(var(--border-rgb) / 0.34) 1px, transparent 1.2px);
+  background-size: 54px 54px;
+  background-image: 
+    radial-gradient(circle, rgb(var(--border-rgb) / 0.4) 1.5px, transparent 1.5px),
+    linear-gradient(to right, rgb(var(--border-rgb) / 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--border-rgb) / 0.12) 1px, transparent 1px);
+  background-position: center;
 }
 
 .glass-panel {
