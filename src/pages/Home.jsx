@@ -150,7 +150,7 @@ export const Home = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-cyber-dark overflow-hidden">
+    <div className="min-h-screen flex flex-col relative bg-cyber-dark">
       {/* Background patterns */}
       <div className="absolute inset-0 dotted-grid pointer-events-none opacity-55"></div>
 
