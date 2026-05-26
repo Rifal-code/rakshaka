@@ -104,7 +104,7 @@ export const ReportDetail = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col pt-[80px]">
+    <div className="min-h-screen flex flex-col bg-cyber-dark">
       {/* If this is accessed by a guest, Navbar should be shown */}
       {!isAuthenticated && <Navbar />}
 

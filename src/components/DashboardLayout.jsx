@@ -66,12 +66,12 @@ export const DashboardLayout = ({ children }) => {
 
       {/* Sidebar Navigation */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-cyber-card border-r border-cyber-border p-6 flex flex-col justify-between
+        fixed inset-y-0 left-0 z-50 w-64 bg-cyber-card border-r border-cyber-border flex flex-col
         transform md:translate-x-0 md:static md:z-auto transition-transform duration-300 ease-in-out md:h-full
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        {/* Sidebar Header */}
-        <div className="space-y-6">
+        {/* Sidebar Header & Nav (Scrollable) */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 group">
               <div className="w-9 h-9 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center group-hover:border-cyber-cyan transition-colors">
@@ -131,8 +131,8 @@ export const DashboardLayout = ({ children }) => {
           </nav>
         </div>
 
-        {/* Sidebar Footer / Logout */}
-        <div className="pt-6 border-t border-cyber-border">
+        {/* Sidebar Footer / Logout (Sticky Bottom) */}
+        <div className="p-6 pt-4 border-t border-cyber-border bg-cyber-card shrink-0">
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-cyber-red hover:bg-cyber-red/10 border-r-2 border-transparent hover:border-cyber-red transition-all duration-200"
