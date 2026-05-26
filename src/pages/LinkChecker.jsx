@@ -69,7 +69,8 @@ export const LinkChecker = () => {
       id: Date.now().toString(),
       url: result.url,
       status: result.status || 'unknown',
-      score: (typeof result.score === 'number') ? result.score : 0,
+      score: !isNaN(parseInt(result.score)) ? parseInt(result.score) : 0,
+      reason: result.reason || null,
       timestamp: new Date().toISOString()
     };
     
@@ -136,10 +137,13 @@ export const LinkChecker = () => {
         console.log('Parsed result:', raw);
         console.log('Status:', raw.status, '| Score:', raw.score, '| Reason:', raw.reason);
         
-        // Normalisasi data agar UI tidak rusak jika ada field yang kosong/null
+        // Normalisasi data agar lebih tahan banting jika Gemini merespons dengan string "70" bukan angka 70
+        const parsedScore = parseInt(raw.score, 10);
+        const finalScore = !isNaN(parsedScore) ? parsedScore : 0;
+
         const result = {
           ...raw,
-          score: (typeof raw.score === 'number') ? raw.score : 0,
+          score: finalScore,
           status: raw.status || 'unknown',
           reason: raw.reason || null,
         };
@@ -210,7 +214,8 @@ export const LinkChecker = () => {
     setScanResult({
       url: item.url,
       status: item.status,
-      score: item.score
+      score: item.score,
+      reason: item.reason
     });
     setTerminalLogs([
       {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Navbar } from '../components/Navbar';
@@ -12,12 +12,18 @@ import {
   ChevronRight, 
   FileText, 
   Cpu,
-  Loader
+  Loader,
+  CheckCircle2,
+  XCircle,
+  Info,
+  ExternalLink,
+  Globe
 } from 'lucide-react';
 import { PublicReportCard } from './PublicReports';
 
 export const Home = () => {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [urlInput, setUrlInput] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
@@ -54,6 +60,10 @@ export const Home = () => {
 
   const handleScan = async (e) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     if (!urlInput.trim()) return;
 
     let processedUrl = urlInput.trim();
@@ -69,45 +79,21 @@ export const Home = () => {
     const scanPromise = new Promise(resolve => setTimeout(resolve, 2200));
 
     try {
-      let apiPromise;
-      if (isAuthenticated) {
-        // Real API Call
-        apiPromise = api.checkLink(processedUrl);
-      } else {
-        // Simulated local scan for guests (great UX / conversion hook)
-        apiPromise = (async () => {
-          await new Promise(resolve => setTimeout(resolve, 800));
-          const urlLower = processedUrl.toLowerCase();
-          
-          // Basic heuristic rules for mock
-          if (urlLower.includes('judol') || urlLower.includes('slot') || urlLower.includes('gacor') || urlLower.includes('sbobet')) {
-            return {
-              success: true,
-              data: { url: processedUrl, status: 'malicious', score: 18 }
-            };
-          } else if (urlLower.includes('login') || urlLower.includes('verifikasi') || urlLower.includes('bantuan-bca') || urlLower.includes('undian-bri')) {
-            return {
-              success: true,
-              data: { url: processedUrl, status: 'suspicious', score: 45 }
-            };
-          } else if (urlLower.includes('google.com') || urlLower.includes('github.com') || urlLower.includes('wikipedia.org')) {
-            return {
-              success: true,
-              data: { url: processedUrl, status: 'safe', score: 98 }
-            };
-          } else {
-            return {
-              success: true,
-              data: { url: processedUrl, status: 'unknown', score: 50 }
-            };
-          }
-        })();
-      }
-
+      const apiPromise = api.checkLink(processedUrl);
       const [, response] = await Promise.all([scanPromise, apiPromise]);
 
       if (response.success && response.data) {
-        setScanResult(response.data);
+        const raw = response.data;
+        const parsedScore = parseInt(raw.score, 10);
+        const finalScore = !isNaN(parsedScore) ? parsedScore : 0;
+
+        const result = {
+          ...raw,
+          score: finalScore,
+          status: raw.status || 'unknown',
+          reason: raw.reason || null,
+        };
+        setScanResult(result);
       } else {
         throw new Error(response.message || "Failed to scan link.");
       }
@@ -119,49 +105,101 @@ export const Home = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusInfo = (status) => {
     switch (status) {
       case 'safe':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-green/10 text-cyber-green border border-cyber-green/30">
-            <ShieldCheck className="w-3.5 h-3.5" /> AMAN
-          </span>
-        );
+        return {
+          label: 'AMAN / VERIFIED',
+          color: 'text-cyber-green',
+          bg: 'bg-cyber-green/10',
+          border: 'border-cyber-green/30',
+          glow: 'shadow-sm',
+          icon: ShieldCheck,
+          accent: 'var(--success-btn-color)'
+        };
       case 'suspicious':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-            <AlertTriangle className="w-3.5 h-3.5" /> MENCURIGAKAN
-          </span>
-        );
+        return {
+          label: 'MENCURIGAKAN / WARNING',
+          color: 'text-amber-400',
+          bg: 'bg-amber-500/10',
+          border: 'border-amber-500/30',
+          glow: 'shadow-sm',
+          icon: AlertTriangle,
+          accent: 'rgb(var(--warning-rgb))'
+        };
       case 'malicious':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-red/10 text-cyber-red border border-cyber-red/30">
-            <ShieldAlert className="w-3.5 h-3.5" /> BERBAHAYA
-          </span>
-        );
+        return {
+          label: 'BERBAHAYA / THREAT',
+          color: 'text-cyber-red',
+          bg: 'bg-cyber-red/10',
+          border: 'border-cyber-red/30',
+          glow: 'shadow-sm',
+          icon: ShieldAlert,
+          accent: 'var(--danger-btn-color)'
+        };
       case 'judol':
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-cyber-red/10 text-cyber-red border border-cyber-red/30">
-            <ShieldAlert className="w-3.5 h-3.5" /> JUDI ONLINE
-          </span>
-        );
+        return {
+          label: 'JUDI ONLINE / JUDOL',
+          color: 'text-cyber-red',
+          bg: 'bg-cyber-red/10',
+          border: 'border-cyber-red/30',
+          glow: 'shadow-sm',
+          icon: ShieldAlert,
+          accent: 'var(--danger-btn-color)'
+        };
       default:
-        return (
-          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/30">
-            <AlertTriangle className="w-3.5 h-3.5" /> TIDAK DIKENAL
-          </span>
-        );
+        return {
+          label: 'TIDAK DIKENAL / UNKNOWN',
+          color: 'text-slate-400',
+          bg: 'bg-slate-500/10',
+          border: 'border-slate-500/30',
+          glow: 'shadow-none',
+          icon: Info,
+          accent: 'var(--secondary-text-color)'
+        };
     }
   };
 
-  const getScoreColor = (status, score) => {
-    if (status === 'safe') return 'text-cyber-green';
-    if (status === 'suspicious') return 'text-amber-400';
-    if (status === 'malicious' || status === 'judol') return 'text-cyber-red';
-    // fallback by score
-    if (score <= 20) return 'text-cyber-green';
-    if (score <= 60) return 'text-amber-400';
-    return 'text-cyber-red';
+  const renderGauge = (rawScore, accentColor) => {
+    const score = (typeof rawScore === 'number') ? rawScore : 0;
+    const radius = 40;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (score / 100) * circumference;
+
+    return (
+      <div className="relative w-28 h-28 flex items-center justify-center">
+        <div 
+          className="absolute inset-2 rounded-full blur-md opacity-30 transition-all duration-500"
+          style={{ backgroundColor: accentColor }}
+        ></div>
+        <svg className="w-full h-full transform -rotate-90">
+          <circle
+            cx="56"
+            cy="56"
+            r={radius}
+            className="stroke-cyber-border fill-none"
+            strokeWidth="6"
+          />
+          <circle
+            cx="56"
+            cy="56"
+            r={radius}
+            className="fill-none transition-all duration-1000 ease-out"
+            stroke={accentColor}
+            strokeWidth="6"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute flex flex-col items-center justify-center">
+          <span className="text-3xl font-display font-black tracking-tight text-app-text leading-none">
+            {score}
+          </span>
+          <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mt-1">SCORE</span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -232,7 +270,7 @@ export const Home = () => {
             </div>
             {!isAuthenticated && (
               <p className="text-[10px] text-slate-500 font-mono text-center">
-                💡 Menjalankan analisa heuristik lokal. <Link to="/login" className="text-cyber-cyan hover:underline">Masuk</Link> untuk query basis data Rakshaka penuh.
+                💡 Anda harus <Link to="/login" className="text-cyber-cyan hover:underline">Masuk</Link> terlebih dahulu untuk melakukan analisis tautan.
               </p>
             )}
           </form>
@@ -254,94 +292,114 @@ export const Home = () => {
           )}
 
           {/* Scan Results Display */}
-          {scanResult && !isScanning && (
-            <div className="mt-8 border border-cyber-border rounded-xl bg-cyber-lightDark p-6 animate-fade-in relative">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-cyber-border/50">
-                <div className="overflow-hidden">
-                  <h4 className="text-xs font-mono text-slate-500 uppercase mb-1">Domain Target</h4>
-                  <p className="text-sm font-medium text-app-text truncate">{scanResult.url}</p>
-                </div>
-                <div>
-                  <h4 className="text-xs font-mono text-slate-500 uppercase mb-1 sm:text-right">Tingkat Keamanan</h4>
-                  <div className="sm:text-right">{getStatusBadge(scanResult.status)}</div>
-                </div>
-              </div>
+          {scanResult && !isScanning && (() => {
+            const status = getStatusInfo(scanResult.status);
+            const StatusIcon = status.icon;
+            
+            return (
+              <div className={`mt-8 glass-panel p-6 border border-cyber-border relative overflow-hidden bg-gradient-to-r from-cyber-card via-cyber-lightDark/40 to-cyber-card shadow-cyber-card animate-fade-in ${status.glow}`}>
+                {/* Cyber Brackets */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyber-border/60"></div>
+                <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyber-border/60"></div>
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyber-border/60"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyber-border/60"></div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                <div className="flex items-center gap-4">
-                  {/* Gauge score visualization using SVG */}
-                  <div className="relative w-20 h-20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="32"
-                        className="stroke-cyber-border fill-none"
-                        strokeWidth="4.5"
-                      />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="32"
-                        className="fill-none transition-all duration-1000 ease-out"
-                        stroke={
+                {/* Card Header Info */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-6 border-b border-cyber-border/60">
+                  <div className="overflow-hidden">
+                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-0.5">SCAN TARGET</span>
+                    <p className="text-sm font-semibold text-app-text truncate flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-cyber-cyan" />
+                      {scanResult.url}
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:items-end">
+                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-1">SECURITY STATUS</span>
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-mono font-bold ${status.color} ${status.bg} border ${status.border}`}>
+                      <StatusIcon className="w-3.5 h-3.5" />
+                      {status.label}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-8 items-center">
+                  {/* Gauge Display */}
+                  <div className="flex-shrink-0 flex flex-col items-center justify-center p-3 border border-cyber-border rounded-xl bg-cyber-dark/60">
+                    {renderGauge(scanResult.score, status.accent)}
+                    <span className="text-[9px] font-mono text-slate-400 mt-2 uppercase tracking-wider">Integrity score</span>
+                  </div>
+
+                  {/* Verdict & Actions */}
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <h4 className="text-base font-bold text-app-text flex items-center gap-1.5 mb-1.5">
+                        {scanResult.status === 'safe' ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 text-cyber-green" />
+                            Situs ini Tergolong Aman
+                          </>
+                        ) : scanResult.status === 'suspicious' ? (
+                          <>
+                            <AlertTriangle className="w-4 h-4 text-amber-400" />
+                            Situs Kurang Terpercaya
+                          </>
+                        ) : scanResult.status === 'malicious' || scanResult.status === 'judol' ? (
+                          <>
+                            <XCircle className="w-4 h-4 text-cyber-red" />
+                            {scanResult.status === 'judol' ? 'Situs Judi Online Terdeteksi!' : 'Ancaman Keamanan Siber Terdeteksi!'}
+                          </>
+                        ) : (
+                          <>
+                            <Info className="w-4 h-4 text-slate-400" />
+                            Status Tidak Diketahui
+                          </>
+                        )}
+                      </h4>
+                      <p className="text-xs text-slate-400 leading-relaxed font-sans text-left">
+                        {scanResult.reason || (
                           scanResult.status === 'safe'
-                            ? 'var(--success-btn-color)'
-                            : scanResult.status === 'malicious'
-                              ? 'var(--danger-btn-color)'
-                              : 'rgb(var(--warning-rgb))'
-                        }
-                        strokeWidth="4.5"
-                        strokeDasharray={2 * Math.PI * 32}
-                        strokeDashoffset={2 * Math.PI * 32 - (scanResult.score / 100) * (2 * Math.PI * 32)}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute flex flex-col items-center justify-center">
-                      <span className={`text-xl font-display font-black ${getScoreColor(scanResult.status, scanResult.score)}`}>
-                        {scanResult.score}
-                      </span>
-                      <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">SCORE</span>
+                            ? 'Tidak ada ancaman aktif atau riwayat berbahaya yang terdeteksi di database kami. Situs ini dapat digunakan secara normal.'
+                            : scanResult.status === 'suspicious'
+                            ? 'Situs memiliki indikator mencurigakan. Harap berhati-hati saat bertransaksi.'
+                            : scanResult.status === 'malicious' || scanResult.status === 'judol'
+                            ? 'Situs dikonfirmasi memuat aktivitas ilegal. Tutup tab Anda segera.'
+                            : 'Tidak dapat menentukan status keamanan situs ini.'
+                        )}
+                      </p>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex flex-wrap gap-2.5 pt-2">
+                      {scanResult.status !== 'safe' && (
+                        <button
+                          onClick={() => navigate('/reports/new', { 
+                            state: { 
+                              initialTitle: `Laporan Ancaman: ${scanResult.url.replace(/^https?:\/\//i, '')}`, 
+                              initialDescription: `Menemukan tautan bermasalah di ${scanResult.url}. Berdasarkan pemindaian konsol Rakshaka, link ini memiliki skor keamanan ${scanResult.score}/100 dengan ancaman kategori ${scanResult.status}.`, 
+                              initialCategory: scanResult.status === 'malicious' ? 'judol' : 'phishing' 
+                            } 
+                          })}
+                          className="px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider bg-cyber-red text-cyber-dark hover:bg-cyber-red/80 transition-all duration-300 shadow-sm flex items-center gap-1.5"
+                        >
+                          <ShieldAlert className="w-3.5 h-3.5" />
+                          Laporkan Link Ini
+                        </button>
+                      )}
+                      <a
+                        href={scanResult.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider bg-cyber-lightDark border border-cyber-border text-app-text hover:text-app-text hover:border-slate-500 transition-all duration-300 flex items-center gap-1.5"
+                      >
+                        Kunjungi Link
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
                     </div>
                   </div>
-                  <div>
-                    <h5 className="text-sm font-semibold text-app-text mb-1">
-                      {scanResult.status === 'safe' ? 'Situs Tampak Aman' 
-                        : scanResult.status === 'suspicious' ? 'Gunakan dengan Hati-hati' 
-                        : scanResult.status === 'judol' ? 'Situs Judi Online Terdeteksi!'
-                        : scanResult.status === 'malicious' ? 'Situs Berbahaya Terdeteksi!'
-                        : 'Status Tidak Diketahui'}
-                    </h5>
-                    <p className="text-xs text-slate-400 font-sans leading-relaxed">
-                      {scanResult.reason || (
-                        scanResult.status === 'safe'
-                          ? 'Website tidak terdaftar di database blacklist dan aman untuk diakses.'
-                          : scanResult.status === 'suspicious'
-                          ? 'Memiliki beberapa indikator mencurigakan (misalnya domain baru terdaftar).'
-                          : scanResult.status === 'malicious' || scanResult.status === 'judol'
-                          ? 'Situs ini dikonfirmasi melakukan aktivitas ilegal (phishing/gambling).'
-                          : 'Tidak dapat menentukan status keamanan situs ini.'
-                      )}
-                    </p>
-                  </div>
                 </div>
-
-                {!isAuthenticated && (
-                  <div className="p-4 rounded-xl bg-cyber-cyan/5 border border-cyber-cyan/20 flex flex-col items-center text-center">
-                    <p className="text-xs text-app-text font-medium mb-3">
-                      Butuh keamanan ekstra? Laporkan link ini ke platform untuk ditindaklanjuti.
-                    </p>
-                    <Link
-                      to="/login"
-                      className="px-4 py-1.5 rounded-lg bg-cyber-cyan text-cyber-dark font-display font-semibold text-xs shadow-sm hover:bg-cyber-cyan/90 transition-all"
-                    >
-                      Kirim Laporan Kasus
-                    </Link>
-                  </div>
-                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Error Message */}
           {error && (
