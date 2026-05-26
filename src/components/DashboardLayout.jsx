@@ -49,19 +49,16 @@ export const DashboardLayout = ({ children }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-cyber-dark flex flex-col md:flex-row relative cyber-grid">
-      {/* Background Aura */}
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full bg-cyber-cyan/5 blur-[120px] pointer-events-none"></div>
-      
+    <div className="min-h-screen bg-cyber-dark flex flex-col md:flex-row relative dotted-grid">
       {/* Mobile Top Navbar */}
       <header className="md:hidden flex items-center justify-between px-6 h-16 bg-cyber-card border-b border-cyber-border sticky top-0 z-40">
         <Link to="/" className="flex items-center gap-2">
           <Shield className="w-6 h-6 text-cyber-cyan" />
-          <span className="font-display font-extrabold text-lg tracking-wider text-slate-100">RAKSHAKA</span>
+          <span className="font-display font-extrabold text-lg tracking-wider text-app-text">RAKSHAKA</span>
         </Link>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 rounded-xl text-slate-400 hover:text-white bg-cyber-dark border border-cyber-border"
+          className="p-2 rounded-xl text-slate-400 hover:text-app-text bg-cyber-dark border border-cyber-border"
         >
           {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -80,11 +77,11 @@ export const DashboardLayout = ({ children }) => {
               <div className="w-9 h-9 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center group-hover:border-cyber-cyan transition-colors">
                 <Shield className="w-5 h-5 text-cyber-cyan" />
               </div>
-              <span className="font-display font-extrabold text-lg tracking-wider text-slate-100">RAKSHAKA</span>
+              <span className="font-display font-extrabold text-lg tracking-wider text-app-text">RAKSHAKA</span>
             </Link>
             <button 
               onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden text-slate-400 hover:text-white"
+              className="md:hidden text-slate-400 hover:text-app-text"
             >
               <X className="w-5 h-5" />
             </button>
@@ -96,10 +93,10 @@ export const DashboardLayout = ({ children }) => {
               <User className="w-5 h-5" />
             </div>
             <div className="overflow-hidden">
-              <h4 className="text-sm font-semibold text-slate-200 truncate">{user?.username}</h4>
+              <h4 className="text-sm font-semibold text-app-text truncate">{user?.username}</h4>
               <p className="text-xs text-slate-500 font-mono flex items-center gap-1 uppercase tracking-wider">
                 {isAdmin ? (
-                  <span className="text-cyber-green text-neon-green flex items-center gap-0.5">
+                  <span className="text-cyber-green flex items-center gap-0.5">
                     <ShieldCheck className="w-3 h-3" /> ADMIN
                   </span>
                 ) : (
@@ -121,12 +118,12 @@ export const DashboardLayout = ({ children }) => {
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group
                     ${isActive(item.path) 
-                      ? 'bg-cyber-cyan/10 text-cyber-cyan border-r-2 border-cyber-cyan shadow-neon-cyan/5' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-cyber-lightDark border-r-2 border-transparent'
+                      ? 'bg-cyber-cyan/10 text-cyber-cyan border-r-2 border-cyber-cyan shadow-sm' 
+                      : 'text-slate-400 hover:text-app-text hover:bg-cyber-lightDark border-r-2 border-transparent'
                     }
                   `}
                 >
-                  <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive(item.path) ? 'text-cyber-cyan' : 'text-slate-400 group-hover:text-slate-300'}`} />
+                  <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive(item.path) ? 'text-cyber-cyan' : 'text-slate-400 group-hover:text-app-text'}`} />
                   {item.label}
                 </Link>
               );
