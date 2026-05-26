@@ -56,6 +56,11 @@ export const Home = () => {
     e.preventDefault();
     if (!urlInput.trim()) return;
 
+    let processedUrl = urlInput.trim();
+    if (!/^https?:\/\//i.test(processedUrl)) {
+      processedUrl = 'https://' + processedUrl;
+    }
+
     setIsScanning(true);
     setScanResult(null);
     setError(null);
@@ -67,33 +72,33 @@ export const Home = () => {
       let apiPromise;
       if (isAuthenticated) {
         // Real API Call
-        apiPromise = api.checkLink(urlInput);
+        apiPromise = api.checkLink(processedUrl);
       } else {
         // Simulated local scan for guests (great UX / conversion hook)
         apiPromise = (async () => {
           await new Promise(resolve => setTimeout(resolve, 800));
-          const urlLower = urlInput.toLowerCase();
+          const urlLower = processedUrl.toLowerCase();
           
           // Basic heuristic rules for mock
           if (urlLower.includes('judol') || urlLower.includes('slot') || urlLower.includes('gacor') || urlLower.includes('sbobet')) {
             return {
               success: true,
-              data: { url: urlInput, status: 'malicious', score: 18 }
+              data: { url: processedUrl, status: 'malicious', score: 18 }
             };
           } else if (urlLower.includes('login') || urlLower.includes('verifikasi') || urlLower.includes('bantuan-bca') || urlLower.includes('undian-bri')) {
             return {
               success: true,
-              data: { url: urlInput, status: 'suspicious', score: 45 }
+              data: { url: processedUrl, status: 'suspicious', score: 45 }
             };
           } else if (urlLower.includes('google.com') || urlLower.includes('github.com') || urlLower.includes('wikipedia.org')) {
             return {
               success: true,
-              data: { url: urlInput, status: 'safe', score: 98 }
+              data: { url: processedUrl, status: 'safe', score: 98 }
             };
           } else {
             return {
               success: true,
-              data: { url: urlInput, status: 'unknown', score: 50 }
+              data: { url: processedUrl, status: 'unknown', score: 50 }
             };
           }
         })();
