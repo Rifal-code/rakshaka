@@ -5,11 +5,118 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --primary-bg-color: #212121;
+    --secondary-bg-color: #00d1ff;
+    --primary-text-color: #f1f1f1;
+    --secondary-text-color: #757575;
+    --primary-btn-color: #212121;
+    --secondary-btn-color: #00d1ff;
+    --danger-btn-color: #f44336;
+    --success-btn-color: #4caf50;
+
+    --primary-bg-rgb: 33 33 33;
+    --secondary-bg-rgb: 0 209 255;
+    --primary-text-rgb: 241 241 241;
+    --secondary-text-rgb: 117 117 117;
+    --primary-btn-rgb: 33 33 33;
+    --secondary-btn-rgb: 0 209 255;
+    --danger-btn-rgb: 244 67 54;
+    --success-btn-rgb: 76 175 80;
+
+    --surface-bg-rgb: 28 28 28;
+    --surface-muted-rgb: 43 43 43;
+    --border-rgb: 72 72 72;
+    --warning-rgb: 245 158 11;
+    --shadow-rgb: 0 0 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary-bg-color: #212121;
+      --secondary-bg-color: #00d1ff;
+      --primary-text-color: #f1f1f1;
+      --secondary-text-color: #757575;
+      --primary-btn-color: #212121;
+      --secondary-btn-color: #00d1ff;
+      --danger-btn-color: #f44336;
+      --success-btn-color: #4caf50;
+
+      --primary-bg-rgb: 33 33 33;
+      --secondary-bg-rgb: 0 209 255;
+      --primary-text-rgb: 241 241 241;
+      --secondary-text-rgb: 117 117 117;
+      --primary-btn-rgb: 33 33 33;
+      --secondary-btn-rgb: 0 209 255;
+      --danger-btn-rgb: 244 67 54;
+      --success-btn-rgb: 76 175 80;
+
+      --surface-bg-rgb: 28 28 28;
+      --surface-muted-rgb: 43 43 43;
+      --border-rgb: 72 72 72;
+      --warning-rgb: 245 158 11;
+      --shadow-rgb: 0 0 0;
+    }
+  }
+
+  [data-theme="light"] {
+    --primary-bg-color: #f1f1f1;
+    --secondary-bg-color: #00d1ff;
+    --primary-text-color: #212121;
+    --secondary-text-color: #757575;
+    --primary-btn-color: #f1f1f1;
+    --secondary-btn-color: #00d1ff;
+    --danger-btn-color: #f44336;
+    --success-btn-color: #4caf50;
+
+    --primary-bg-rgb: 241 241 241;
+    --secondary-bg-rgb: 0 209 255;
+    --primary-text-rgb: 33 33 33;
+    --secondary-text-rgb: 117 117 117;
+    --primary-btn-rgb: 241 241 241;
+    --secondary-btn-rgb: 0 209 255;
+    --danger-btn-rgb: 244 67 54;
+    --success-btn-rgb: 76 175 80;
+
+    --surface-bg-rgb: 255 255 255;
+    --surface-muted-rgb: 232 232 232;
+    --border-rgb: 210 210 210;
+    --warning-rgb: 245 158 11;
+    --shadow-rgb: 33 33 33;
+  }
+
+  [data-theme="dark"],
+  .dark {
+    --primary-bg-color: #212121;
+    --secondary-bg-color: #00d1ff;
+    --primary-text-color: #f1f1f1;
+    --secondary-text-color: #757575;
+    --primary-btn-color: #212121;
+    --secondary-btn-color: #00d1ff;
+    --danger-btn-color: #f44336;
+    --success-btn-color: #4caf50;
+
+    --primary-bg-rgb: 33 33 33;
+    --secondary-bg-rgb: 0 209 255;
+    --primary-text-rgb: 241 241 241;
+    --secondary-text-rgb: 117 117 117;
+    --primary-btn-rgb: 33 33 33;
+    --secondary-btn-rgb: 0 209 255;
+    --danger-btn-rgb: 244 67 54;
+    --success-btn-rgb: 76 175 80;
+
+    --surface-bg-rgb: 28 28 28;
+    --surface-muted-rgb: 43 43 43;
+    --border-rgb: 72 72 72;
+    --warning-rgb: 245 158 11;
+    --shadow-rgb: 0 0 0;
+  }
+
   body {
-    @apply bg-cyber-dark text-slate-100 font-sans antialiased overflow-x-hidden;
+    @apply bg-cyber-dark text-app-text font-sans antialiased overflow-x-hidden;
+    color-scheme: dark;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(0, 240, 255, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(0, 255, 102, 0.05) 0px, transparent 50%);
+      linear-gradient(180deg, rgb(var(--surface-bg-rgb) / 0.9) 0%, rgb(var(--primary-bg-rgb) / 1) 46%);
     background-attachment: fixed;
   }
 
@@ -18,7 +125,7 @@
   }
 }
 
-/* Custom Scrollbar for Cyberpunk vibe */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -30,42 +137,60 @@
   @apply bg-cyber-border rounded-full hover:bg-cyber-cyan transition-all duration-300;
 }
 
-/* Cyber Grid Background overlay */
 .cyber-grid {
-  background-size: 40px 40px;
+  background-size: 48px 48px;
   background-image: 
-    linear-gradient(to right, rgba(30, 41, 59, 0.2) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 41, 59, 0.2) 1px, transparent 1px);
+    linear-gradient(to right, rgb(var(--border-rgb) / 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--border-rgb) / 0.18) 1px, transparent 1px);
 }
 
-/* Glassmorphism utility */
+.dotted-grid {
+  background-size: 26px 26px;
+  background-image: radial-gradient(circle, rgb(var(--border-rgb) / 0.34) 1px, transparent 1.2px);
+}
+
 .glass-panel {
-  @apply bg-cyber-card/75 border border-cyber-border rounded-2xl backdrop-blur-md;
+  @apply bg-cyber-card border border-cyber-border rounded-2xl shadow-cyber-card;
 }
 
 .glass-panel-hover {
-  @apply transition-all duration-300 hover:border-cyber-cyan/50 hover:shadow-neon-cyan;
-}
-
-/* Neon text shadows */
-.text-neon-cyan {
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
-}
-
-.text-neon-green {
-  text-shadow: 0 0 10px rgba(0, 255, 102, 0.6);
-}
-
-.text-neon-red {
-  text-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+  @apply transition-all duration-300 hover:-translate-y-0.5 hover:border-cyber-cyan/40 hover:shadow-cyber-card;
 }
 
 /* Stepper progress connector line */
 .stepper-line {
-  background: linear-gradient(90deg, #00FF66 0%, #00F0FF 100%);
+  background: linear-gradient(90deg, var(--success-btn-color) 0%, var(--secondary-bg-color) 100%);
 }
 
 /* Scanning radar overlay */
 .radar-overlay {
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 240, 255, 0.15) 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgb(var(--secondary-bg-rgb) / 0.08) 50%, transparent 100%);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-bg-color);
+}
+
+.text-primary {
+  color: var(--primary-text-color);
+}
+
+.text-secondary {
+  color: var(--secondary-text-color);
+}
+
+.btn,
+.btn-secondary {
+  color: var(--primary-btn-color);
+  background-color: var(--secondary-btn-color);
+}
+
+.btn-success {
+  color: var(--primary-btn-color);
+  background-color: var(--success-btn-color);
+}
+
+.btn-danger {
+  color: var(--primary-btn-color);
+  background-color: var(--danger-btn-color);
 }
