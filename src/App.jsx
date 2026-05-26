@@ -12,17 +12,19 @@ function App() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/reports" element={<PublicReports />} />
+      <Route path="/" element={<div className="animate-page-entrance"><Home /></div>} />
+      <Route path="/login" element={<div className="animate-page-entrance"><Login /></div>} />
+      <Route path="/register" element={<div className="animate-page-entrance"><Register /></div>} />
+      <Route path="/reports" element={<div className="animate-page-entrance"><PublicReports /></div>} />
 
       {/* Protected User/Admin Routes */}
       <Route 
         path="/dashboard" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <div className="animate-page-entrance">
+              <Dashboard />
+            </div>
           </ProtectedRoute>
         } 
       />
@@ -30,7 +32,9 @@ function App() {
         path="/reports/new" 
         element={
           <ProtectedRoute>
-            <ReportForm />
+            <div className="animate-page-entrance">
+              <ReportForm />
+            </div>
           </ProtectedRoute>
         } 
       />
@@ -38,7 +42,9 @@ function App() {
         path="/reports/:id/edit" 
         element={
           <ProtectedRoute>
-            <ReportForm />
+            <div className="animate-page-entrance">
+              <ReportForm />
+            </div>
           </ProtectedRoute>
         } 
       />
@@ -46,7 +52,9 @@ function App() {
         path="/link-checker" 
         element={
           <ProtectedRoute>
-            <LinkChecker />
+            <div className="animate-page-entrance">
+              <LinkChecker />
+            </div>
           </ProtectedRoute>
         } 
       />
