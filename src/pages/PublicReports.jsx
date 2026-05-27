@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, FileText, Loader, Search, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, Calendar, ChevronLeft, ChevronRight, FileText, Loader, Search, ShieldAlert, SearchX } from 'lucide-react';
 import { api } from '../services/api';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { SearchInput } from '../components/SearchInput';
 
 const categoryMeta = {
   scam: {
@@ -90,6 +91,8 @@ export const PublicReports = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const perPage = 9;
 
   useEffect(() => {
@@ -121,8 +124,20 @@ export const PublicReports = () => {
     };
   }, [page]);
 
+  // Filter reports based on search query
+  const filteredReports = useMemo(() => {
+    if (!debouncedQuery) return reports;
+    const q = debouncedQuery.toLowerCase();
+    return reports.filter((report) => {
+      const title = (report.title || '').toLowerCase();
+      const desc = (report.description || '').toLowerCase();
+      const cat = (report.category || '').toLowerCase();
+      return title.includes(q) || desc.includes(q) || cat.includes(q);
+    });
+  }, [reports, debouncedQuery]);
+
   const stats = useMemo(() => {
-    return reports.reduce(
+    return filteredReports.reduce(
       (acc, report) => {
         acc.total += 1;
         if (report.category && acc[report.category] !== undefined) acc[report.category] += 1;
@@ -130,7 +145,7 @@ export const PublicReports = () => {
       },
       { total: 0, scam: 0, phishing: 0, judol: 0 }
     );
-  }, [reports]);
+  }, [filteredReports]);
 
   return (
     <div className="min-h-screen flex flex-col bg-cyber-dark">
@@ -165,6 +180,24 @@ export const PublicReports = () => {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchInput
+            id="public-reports-search"
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSearch={setDebouncedQuery}
+            placeholder="Cari laporan berdasarkan judul, deskripsi, atau kategori..."
+            debounceMs={300}
+            className="max-w-xl"
+          />
+          {debouncedQuery && (
+            <p className="text-xs text-slate-500 mt-2 font-mono">
+              Menampilkan <span className="text-cyber-cyan font-semibold">{filteredReports.length}</span> hasil untuk "<span className="text-app-text">{debouncedQuery}</span>"
+            </p>
+          )}
+        </div>
+
         {error && (
           <div className="border border-cyber-red/30 rounded-xl bg-cyber-red/5 p-4 flex items-start gap-3 text-cyber-red mb-6">
             <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -177,21 +210,39 @@ export const PublicReports = () => {
             <Loader className="w-8 h-8 text-cyber-cyan animate-spin mb-3" />
             <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">Memuat laporan publik...</p>
           </div>
-        ) : reports.length === 0 ? (
+        ) : filteredReports.length === 0 ? (
           <div className="glass-panel border-dashed p-12 text-center flex flex-col items-center">
-            <Search className="w-10 h-10 text-slate-400 mb-4" />
-            <h2 className="text-lg font-bold text-app-text">Belum Ada Laporan Publik</h2>
-            <p className="text-sm text-slate-500 max-w-md mt-2">
-              Laporan akan muncul di sini setelah API publik tersedia dan data laporan dapat dibaca tanpa login.
-            </p>
-            <Link to="/" className="mt-6 px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark text-sm font-bold">
-              Kembali ke Beranda
-            </Link>
+            {debouncedQuery ? (
+              <>
+                <SearchX className="w-10 h-10 text-slate-400 mb-4" />
+                <h2 className="text-lg font-bold text-app-text">Tidak Ada Hasil Ditemukan</h2>
+                <p className="text-sm text-slate-500 max-w-md mt-2">
+                  Tidak ditemukan laporan yang cocok dengan pencarian "<span className="text-app-text font-medium">{debouncedQuery}</span>". Coba kata kunci lain.
+                </p>
+                <button
+                  onClick={() => { setSearchQuery(''); setDebouncedQuery(''); }}
+                  className="mt-6 px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark text-sm font-bold hover:bg-cyber-cyan/90 transition-colors"
+                >
+                  Hapus Pencarian
+                </button>
+              </>
+            ) : (
+              <>
+                <Search className="w-10 h-10 text-slate-400 mb-4" />
+                <h2 className="text-lg font-bold text-app-text">Belum Ada Laporan Publik</h2>
+                <p className="text-sm text-slate-500 max-w-md mt-2">
+                  Laporan akan muncul di sini setelah API publik tersedia dan data laporan dapat dibaca tanpa login.
+                </p>
+                <Link to="/" className="mt-6 px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark text-sm font-bold">
+                  Kembali ke Beranda
+                </Link>
+              </>
+            )}
           </div>
         ) : (
           <>
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reports.map((report) => (
+              {filteredReports.map((report) => (
                 <PublicReportCard key={report.id} report={report} />
               ))}
             </section>

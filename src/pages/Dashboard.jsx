@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { DashboardLayout } from '../components/DashboardLayout';
+import { SearchInput } from '../components/SearchInput';
 import { 
   FileText, 
   Trash2, 
@@ -17,7 +18,8 @@ import {
   ChevronRight,
   TrendingDown,
   ShieldAlert,
-  Loader
+  Loader,
+  SearchX
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -38,6 +40,10 @@ export const Dashboard = () => {
   
   // Stats
   const [stats, setStats] = useState({ total: 0, scam: 0, phishing: 0, judol: 0 });
+
+  // Search
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const fetchReports = async () => {
     setLoading(true);
@@ -149,10 +155,29 @@ export const Dashboard = () => {
     }
   };
 
-  // Filtered reports locally for seamless categories click
-  const filteredReports = categoryFilter === 'all' 
-    ? reports 
-    : reports.filter(r => r.category === categoryFilter);
+  // Filtered reports: category + search combined
+  const filteredReports = useMemo(() => {
+    let result = reports;
+    
+    // Category filter
+    if (categoryFilter !== 'all') {
+      result = result.filter(r => r.category === categoryFilter);
+    }
+    
+    // Search filter
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(r => {
+        const title = (r.title || '').toLowerCase();
+        const desc = (r.description || '').toLowerCase();
+        const cat = (r.category || '').toLowerCase();
+        const id = (r.id || '').toLowerCase();
+        return title.includes(q) || desc.includes(q) || cat.includes(q) || id.includes(q);
+      });
+    }
+    
+    return result;
+  }, [reports, categoryFilter, debouncedSearch]);
 
   return (
     <DashboardLayout>
@@ -219,7 +244,7 @@ export const Dashboard = () => {
       </div>
 
       {/* Filter Tabs & Search section */}
-      <div className="flex items-center justify-between border-b border-cyber-border/60 pb-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-cyber-border/60 pb-4 mb-6">
         <div className="flex gap-2 overflow-x-auto pb-1">
           {['all', 'scam', 'phishing', 'judol'].map((cat) => (
             <button
@@ -237,7 +262,26 @@ export const Dashboard = () => {
             </button>
           ))}
         </div>
+        <SearchInput
+          id="dashboard-search"
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onSearch={setDebouncedSearch}
+          placeholder={isAdmin ? 'Cari semua laporan...' : 'Cari laporan Anda...'}
+          debounceMs={300}
+          className="w-full sm:w-72"
+        />
       </div>
+
+      {/* Search result indicator */}
+      {debouncedSearch && (
+        <div className="mb-4">
+          <p className="text-xs text-slate-500 font-mono">
+            Ditemukan <span className="text-cyber-cyan font-semibold">{filteredReports.length}</span> hasil untuk "<span className="text-app-text">{debouncedSearch}</span>"
+            {categoryFilter !== 'all' && <span> di kategori <span className="text-cyber-cyan uppercase">{categoryFilter}</span></span>}
+          </p>
+        </div>
+      )}
 
       {/* Error alert */}
       {error && (
@@ -256,15 +300,26 @@ export const Dashboard = () => {
       ) : filteredReports.length === 0 ? (
         <div className="border border-cyber-border border-dashed rounded-2xl p-12 text-center flex flex-col items-center justify-center bg-cyber-card/20">
           <div className="w-12 h-12 rounded-2xl bg-cyber-border flex items-center justify-center text-slate-600 mb-4">
-            <FileText className="w-6 h-6" />
+            {debouncedSearch ? <SearchX className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
           </div>
-          <h3 className="text-lg font-semibold text-app-text mb-1">Belum Ada Laporan</h3>
+          <h3 className="text-lg font-semibold text-app-text mb-1">
+            {debouncedSearch ? 'Tidak Ada Hasil Ditemukan' : 'Belum Ada Laporan'}
+          </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto mb-6">
-            {categoryFilter === 'all' 
-              ? 'Anda belum mengirimkan laporan ancaman siber. Laporkan situs penipuan sekarang.' 
-              : `Tidak ditemukan laporan dengan kategori "${categoryFilter}".`}
+            {debouncedSearch
+              ? `Tidak ditemukan laporan yang cocok dengan "${debouncedSearch}"${categoryFilter !== 'all' ? ` di kategori ${categoryFilter}` : ''}. Coba kata kunci lain.`
+              : categoryFilter === 'all' 
+                ? 'Anda belum mengirimkan laporan ancaman siber. Laporkan situs penipuan sekarang.' 
+                : `Tidak ditemukan laporan dengan kategori "${categoryFilter}".`}
           </p>
-          {categoryFilter === 'all' && (
+          {debouncedSearch ? (
+            <button
+              onClick={() => { setSearchQuery(''); setDebouncedSearch(''); }}
+              className="px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark font-display font-bold text-xs shadow-sm hover:bg-cyber-cyan/95 transition-all"
+            >
+              Hapus Pencarian
+            </button>
+          ) : categoryFilter === 'all' && (
             <Link
               to="/reports/new"
               className="px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-dark font-display font-bold text-xs shadow-sm hover:bg-cyber-cyan/95 transition-all"
